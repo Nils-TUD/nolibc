@@ -1,5 +1,5 @@
 BINARY=main
-OBJ=${BINARY}.o
+OBJ=${BINARY}.o start.o
 CXXFLAGS=-std=c++14 -Wall -Wextra -nostdlib -m32 -static -fno-PIC -g
 
 all: $(BINARY)
@@ -8,7 +8,10 @@ run: $(BINARY)
 	./$(BINARY)
 
 $(BINARY): $(OBJ)
-	$(CXX) $(CXXFLAGS) $< -o $(BINARY)
+	$(CXX) $(CXXFLAGS) $+ -o $(BINARY)
+
+start.o: start.S
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
 	$(RM) $(OBJ) $(BINARY)

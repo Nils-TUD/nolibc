@@ -32,8 +32,9 @@ static int getpid() {
     return syscall0(__NR_getpid);
 }
 
-static void exit(int result) {
+extern "C" __attribute__((noreturn)) void exit(int result) {
     syscall1(__NR_exit, result);
+    __builtin_unreachable();
 }
 
 static mword write(int fd, const void *data, mword size) {
@@ -44,10 +45,4 @@ int main() {
 	getpid();
     write(1, "Hello World\n", 13);
     return 0;
-}
-
-extern "C" void _start() {
-    int result = main();
-    exit(result);
-    __builtin_unreachable();
 }
