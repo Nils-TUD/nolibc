@@ -1,6 +1,8 @@
 #include <syscall.h>
 
-static unsigned syscall0(unsigned no) {
+typedef unsigned long mword;
+
+static mword syscall0(mword no) {
     asm volatile (
         "int $0x80"
         : "+a"(no)
@@ -8,7 +10,7 @@ static unsigned syscall0(unsigned no) {
     return no;
 }
 
-static unsigned syscall1(unsigned no, unsigned arg1) {
+static mword syscall1(mword no, mword arg1) {
     asm volatile (
         "int $0x80"
         : "+a"(no)
@@ -17,7 +19,16 @@ static unsigned syscall1(unsigned no, unsigned arg1) {
     return no;
 }
 
-static unsigned getpid() {
+static mword syscall3(mword no, mword arg1, mword arg2, mword arg3) {
+    asm volatile (
+        "int $0x80"
+        : "+a"(no)
+        : "b"(arg1), "c"(arg2), "d"(arg3)
+    );
+    return no;
+}
+
+static int getpid() {
     return syscall0(__NR_getpid);
 }
 
@@ -25,8 +36,14 @@ static void exit(int result) {
     syscall1(__NR_exit, result);
 }
 
+static mword write(int fd, const void *data, mword size) {
+    return syscall3(__NR_write, fd, reinterpret_cast<mword>(data), size);
+}
+
 int main() {
-	return getpid();
+	getpid();
+    write(1, "Hello World\n", 13);
+    return 0;
 }
 
 extern "C" void _start() {
